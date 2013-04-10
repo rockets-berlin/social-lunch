@@ -3,55 +3,100 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>Laravel: A Framework For Web Artisans</title>
+	<title>Lunch roulette on Laravel</title>
 	<meta name="viewport" content="width=device-width">
-	{{ HTML::style('laravel/css/style.css') }}
+
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
-	<div class="wrapper">
-		<header>
-			<h1>Laravel</h1>
-			<h2>A Framework For Web Artisans</h2>
+ <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
 
-			<p class="intro-text" style="margin-top: 45px;">
-			</p>
-		</header>
-		<div role="main" class="main">
-			<div class="home">
-				<h2>Learn the terrain.</h2>
+        <!-- Add your site or application content here -->
+        <p>Lunch roulette yo!</p>
 
-				<p>
-					You've landed yourself on our default home page. The route that
-					is generating this page lives at:
-				</p>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/vendor/socket.io.js"></script>
+        <scrip
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <!--
+        <script>
+            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src='//www.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));
+        </script>
+        -->
+        <br/>
+        <div id="register-window" style="display:none">
+            <form id="register">
+                <label for="userId">Please register:</label>
+                <input type="text" id="userId" name = "uid" />
+                <input type="submit" class="btn-success" />
+            </form>
+        </div>
 
-				<pre>{{ path('app') }}routes.php</pre>
+        <div id="chat-window" style="display:none">
+        <textarea id="chatTextarea" cols="50" rows = "10"></textarea>
+        <div id ="userList" style="float:right; width: 200px; border: solid 1px;">
+            <h2>Users</h2>
+        </div>
+        <form id="chat">
+            <input id = "myinput" type="text"/><input type="submit" class="btn-primary"/>
+        </form>
+        </div>
+        <script>
+                var User = false;
+                $("#register-window").show();
+                $("#chat-window").hide();
 
-				<p>And the view sitting before you can be found at:</p>
+                $("#register").submit(function(event){
+                    event.preventDefault();
+                    startChat(this.elements);
+                    return false;
 
-				<pre>{{ path('app') }}views/home/index.blade.php</pre>
+                });
+                startChat = function (elements) {
+                    var socket = io.connect('http://<?php $_SERVER['SERVER_NAME'];?>:1337');
+                    socket.emit('handshake', elements['uid'].value);
+                    socket.on('handshake-accept', function (users){
+                                $("#register-window").hide();
+                                    $("#chat-window").show();
+                                    User = elements['uid'].value;
+                                    var list = document.getElementById('userList');
+                                    for(var i in users){
+                                        list.innerHTML += users[i] + "<br/>";
+                                    }
+                    });
+                    var source = document.getElementById('myinput');
+                    var form = document.getElementById('chat');
+                    socket.on('chat', function(message, user){
+                        document.getElementById('chatTextarea'). innerHTML += user + ': ' + message + '\n';
 
-				<h2>Grow in knowledge.</h2>
+                    });
 
-				<p>
-					Learning to use Laravel is amazingly simple thanks to
-					its {{ HTML::link('docs', 'wonderful documentation') }}.
-				</p>
+                    $("#chat").submit(function(event){
+                    event.preventDefault();
+                                socket.emit('message', source.value, User);
+                                source.value = '';
+                                return false;
+                            });
+                }
 
-				<h2>Create something beautiful.</h2>
+                window.beforeunload = function(){
+                    console.log('asd');
+                    socket.emit('logout', User);
+                    return 'You sure?';
+                };
 
-				<p>
-					Now that you're up and running, it's time to start creating!
-					Here are some links to help you get started:
-				</p>
 
-				<ul class="out-links">
-					<li><a href="http://laravel.com">Official Website</a></li>
-					<li><a href="http://forums.laravel.com">Laravel Forums</a></li>
-					<li><a href="http://github.com/laravel/laravel">GitHub Repository</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
+
+        </script>
 </body>
 </html>
