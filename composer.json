@@ -1,0 +1,6 @@
+{
+    "require": {
+        "php": ">=5.3.0",
+        "doctrine/mongodb": ">=0.0.0"
+    }
+}
