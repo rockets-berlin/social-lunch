@@ -11,10 +11,10 @@
         <meta name="viewport" content="width=device-width">
 
 
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
 
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -26,10 +26,11 @@
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+        <script src="js/bootstrap.min.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <script src="js/vendor/socket.io.js"></script>
-
+        <scrip
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <!--
         <script>
@@ -39,5 +40,70 @@
             s.parentNode.insertBefore(g,s)}(document,'script'));
         </script>
         -->
+        <br/>
+        <div id="register-window" style="display:none">
+            <form id="register">
+                <label for="userId">Please register:</label>
+                <input type="text" id="userId" name = "uid" />
+                <input type="submit" class="btn-success" />
+            </form>
+        </div>
+
+        <div id="chat-window" style="display:none">
+        <textarea id="chatTextarea" cols="50" rows = "10"></textarea>
+        <div id ="userList" style="float:right; width: 200px; border: solid 1px;">
+            <h2>Users</h2>
+        </div>
+        <form id="chat">
+            <input id = "myinput" type="text"/><input type="submit" class="btn-primary"/>
+        </form>
+        </div>
+        <script>
+                var User = false;
+                $("#register-window").show();
+                $("#chat-window").hide();
+
+                $("#register").submit(function(event){
+                    event.preventDefault();
+                    startChat(this.elements);
+                    return false;
+
+                });
+                startChat = function (elements) {
+                    var socket = io.connect('http://<?php $_SERVER['SERVER_NAME'];?>:1337');
+                    socket.emit('handshake', elements['uid'].value);
+                    socket.on('handshake-accept', function (users){
+                                $("#register-window").hide();
+                                    $("#chat-window").show();
+                                    User = elements['uid'].value;
+                                    var list = document.getElementById('userList');
+                                    for(var i in users){
+                                        list.innerHTML += users[i] + "<br/>";
+                                    }
+                    });
+                    var source = document.getElementById('myinput');
+                    var form = document.getElementById('chat');
+                    socket.on('chat', function(message, user){
+                        document.getElementById('chatTextarea'). innerHTML += user + ': ' + message + '\n';
+
+                    });
+
+                    $("#chat").submit(function(event){
+                    event.preventDefault();
+                                socket.emit('message', source.value, User);
+                                source.value = '';
+                                return false;
+                            });
+                }
+
+                window.beforeunload = function(){
+                    console.log('asd');
+                    socket.emit('logout', User);
+                    return 'You sure?';
+                };
+
+
+
+        </script>
     </body>
 </html>
