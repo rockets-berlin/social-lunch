@@ -9,7 +9,7 @@
 exports.User = {
     userList:{},
     login : function(user){
-        this.userList[user] = user;
+        this.userList[user.uid] = user;
     },
     logout: function(user){
         delete this.userList[user];
