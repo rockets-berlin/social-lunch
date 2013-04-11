@@ -56,17 +56,17 @@ ChatWindow.prototype = {
                         var entry = document.createElement('div');
                             entry.appendChild(messageContainer);
                         self.elements.output.appendChild(entry);
-                    }, this.client);
-
-                    this.elements.memberList.innerHTML = '';
-                    for(var i in Chat.members) {
-                        var elem = document.createElement('a');
+                    }, function(members){
+                        self.elements.memberList.innerHTML = '';
+                        for(var i in members) {
+                            var elem = document.createElement('a');
                             elem.className = 'member-link';
-                            elem.innerHTML = this.client.members[i].name;
-                        this.elements.memberList.appendChild(elem);
-                        this.elements.memberList.appendChild(document.createElement('br'));
+                            elem.innerHTML = members[i].name;
+                            self.elements.memberList.appendChild(elem);
+                            self.elements.memberList.appendChild(document.createElement('br'));
+                        }
+                    });
 
-                    }
 
                 }
 };

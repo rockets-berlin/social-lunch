@@ -39,22 +39,23 @@ Chat.prototype = {
     init    :   function()
                 {
                 },
-    enter   :   function(user, messageReceiveCallback)
+    enter   :   function(user, messageReceiveCallback, userListCallback)
                 {
                     var self = this;
                     this.socket = io.connect((this.config.ssl ? 'https' : 'http') + '://'+ this.config.host + ':' + this.config.port);
                     this.socket.emit(this.Events.enter, user.getData());
-                    self.setEmitter(user.getData());
+                    this.setEmitter(user.getData());
                     this.socket.on(this.Events.authorize, function (users){
 
                         for (var i in users) {
                             self.addMember(new User(users[i]));
                         }
-
+                        if(userListCallback !== undefined && typeof userListCallback == 'function') {
+                            userListCallback(self.members);
+                        }
                         self.enable(messageReceiveCallback);
 
                     });
-
                 },
     leave   :   function(callback)
                 {

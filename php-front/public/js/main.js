@@ -1,3 +1,4 @@
+var appCache = {};
 (function(){
     console = console || {log:function(){}};
 
